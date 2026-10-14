@@ -1,0 +1,9 @@
+# Static site: no build step, publish the repository root as-is.
+[build]
+  publish = "."
+
+# The Claude Artifact pages are only for claude.ai; keep them off the public site.
+[[redirects]]
+  from = "/artifact/*"
+  to = "/index.html"
+  status = 301

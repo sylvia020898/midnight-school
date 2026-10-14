@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>午夜校舍 速通測試</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>window.SPEEDRUN=true;</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="fx" id="vig"></div>
+<div class="fx" id="danger"></div>
+<div class="fx" id="grain"></div>
+<div class="fx" id="red"></div>
+
+<div id="hud" hidden>
+  <div id="clockBox"><div id="clock">03:00<small>AM</small></div><div id="place">1F · 走廊</div>
+    <div id="noise" data-l="0" title="你的腳步聲能傳多遠"><span class="bars"><i></i><i></i><i></i><i></i></span><span id="noiseText">腳步聲：安靜</span></div></div>
+  <div id="quests">
+    <div class="q" id="qMainRow"><b>主線</b><span>找到三張出門線索的紙條</span><em id="qMain">0 / 3</em></div>
+    <div class="q" id="qSideRow" hidden><b>支線</b><span>找到「她」的死因以及怨氣深重的原因</span><em id="qSide">0 / 3</em></div>
+    <div class="q" id="qDawnRow" hidden><b>隱藏</b><span>躲到天明</span><em>05:00</em></div>
+  </div>
+  <div id="status" data-s="calm"><i id="dot"></i><span id="statusText">四周很安靜</span></div>
+  <button id="menuBtn" aria-label="設定"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>設定（Esc）</button>
+  <div id="cross"></div>
+  <div id="prompt" hidden></div>
+  <div id="msg"></div>
+  <div id="hint"></div>
+  <div id="bar" role="listbox" aria-label="手持物"></div>
+</div>
+<div id="paper" hidden></div>
+<button id="muteBtn" aria-pressed="false">聲音：開（M）</button>
+<div class="fx" id="fade"></div>
+
+<div id="touch" hidden>
+  <div id="stickZone"><div id="stickBase"><div id="knob"></div></div></div>
+  <div id="btns">
+    <button id="bLight" aria-pressed="true" aria-label="手電筒">燈</button>
+    <button id="bJump" aria-label="跳躍">跳</button>
+  </div>
+  <div id="stance">
+    <svg class="arc" viewBox="0 0 178 200" aria-hidden="true"><path d="M150 14 C 60 40, 20 110, 70 196" fill="none" stroke="rgba(220,230,250,.22)" stroke-width="1.5"/></svg>
+    <button class="st" id="stRun" data-st="run" aria-pressed="false" aria-label="跑">
+      <svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="26" cy="8" r="5" fill="currentColor" stroke="none"/><path d="M24 15 L18 31 M23 18 L33 22 M23 18 L12 22 M18 31 L29 38 L32 50 M18 31 L10 41 L3 40"/></svg>
+    </button>
+    <button class="st" id="stWalk" data-st="walk" aria-pressed="true" aria-label="走">
+      <svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="20" cy="8" r="5" fill="currentColor" stroke="none"/><path d="M20 15 L19 33 M20 18 L13 28 M20 18 L26 27 M19 33 L13 45 L12 56 M19 33 L24 44 L28 55"/></svg>
+    </button>
+    <button class="st" id="stCrouch" data-st="crouch" aria-pressed="false" aria-label="蹲">
+      <svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="21" cy="22" r="5" fill="currentColor" stroke="none"/><path d="M19 29 L14 42 M19 31 L28 39 M14 42 L25 46 L24 56 M14 42 L9 51 L16 56"/></svg>
+    </button>
+    <button id="bHand" hidden aria-label="手">
+      <svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><path d="M20 58 C 12 50, 8 40, 10 34 C 11 30, 15 30, 17 34 L 20 40 L 20 14 C 20 10, 26 10, 26 14 L 26 32 L 27 9 C 27 5, 33 5, 33 9 L 33 32 L 35 11 C 35 7, 41 7, 41 11 L 40 33 L 43 17 C 44 13, 50 14, 49 18 L 46 40 C 45 50, 40 58, 32 60 Z" opacity=".85"/></svg>
+      <span id="handLabel">看紙條</span>
+    </button>
+  </div>
+</div>
+<button id="noteOpen" hidden><kbd>R</kbd>打開紙條</button>
+<div id="askWrap" hidden>
+  <div id="askPanel" role="dialog" aria-labelledby="askTitle">
+    <div class="set-h">支線任務</div>
+    <p id="askTitle">這張紙看起來很舊，跟出口無關。<br>要開啟支線任務「找到她的死因以及怨氣深重的原因」嗎？</p>
+    <p class="note">開啟後倒數會消失，可以慢慢找；但一樣要找齊三張紙條才能出去。</p>
+    <div class="row"><button class="go" id="askYes">開啟支線（E）</button><button class="go quiet" id="askNo">先不要（Esc）</button></div>
+  </div>
+</div>
+<section id="live" hidden aria-label="直播">
+  <canvas id="liveCv" width="1280" height="720"></canvas>
+  <div class="live-top"><span class="live-badge">● LIVE</span><span id="liveViewers">12 人觀看</span><span class="live-title">我在那間學校裡找到的東西</span></div>
+  <div id="liveChat"></div>
+  <div id="liveCap"></div>
+  <button class="go quiet" id="liveSkip">跳過</button>
+</section>
+<section id="dreamSeq" hidden aria-label="夢境：她坐在窗台上，陽光照在她身上">
+  <canvas id="dreamCv" width="1280" height="720"></canvas>
+  <div id="seqCap"></div>
+  <span class="dream-skip">點一下跳過</span>
+</section>
+<div id="dbgPanel" hidden>
+  <div class="set-h">速通測試 · 動畫</div>
+  <button class="go quiet" data-dbg="escape">一般逃出動畫</button>
+  <button class="go quiet" data-dbg="dawn">天亮動畫（隱藏）</button>
+  <button class="go quiet" data-dbg="truth">直播 + 真相結局</button>
+  <button class="go quiet" data-dbg="dream">夢境動畫</button>
+  <button class="go quiet" data-dbg="caught">被抓動畫</button>
+</div>
+<div id="setWrap" hidden>
+  <div id="setPanel" role="dialog" aria-label="設定">
+    <div class="set-h">設定 · 遊戲已暫停</div>
+    <button class="go" id="setResume">繼續遊戲</button>
+    <div class="set-row"><button class="go quiet" id="setSave">儲存進度</button><span class="note" id="saveNote"></span></div>
+    <label class="set-l" for="sensMouse">滑鼠／搖桿靈敏度 <output id="sensMouseV">1.0</output></label>
+    <input type="range" id="sensMouse" min="0.3" max="2.5" step="0.1" value="1">
+    <label class="set-l" for="sensTouch">觸控轉頭靈敏度 <output id="sensTouchV">1.0</output></label>
+    <input type="range" id="sensTouch" min="0.3" max="3" step="0.1" value="1">
+    <button class="go quiet" id="setQuit">回到主選單</button>
+  </div>
+</div>
+
+<section class="screen" id="menu">
+  <canvas id="menuCv" aria-hidden="true"></canvas>
+  <div class="card">
+    <div class="eyebrow">速通測試版 · 第二教學大樓 · 三層十二間教室 · 凌晨 03:00</div>
+    <div>
+      <h1>午夜校<span class="drip">舍</span></h1>
+      <div class="sub"><b>躲貓貓</b><span>HIDE AND SEEK</span></div>
+    </div>
+    <p class="lede">放學後你睡著了，醒來時校門已鎖。走廊的日光燈一閃一閃，窗外只剩蟬聲。<em>她</em>正在每一間教室裡找人。一邊躲她，一邊照著紙條上的謎語找出路，在 <em>十二分鐘</em> 內從窗戶逃出去。</p>
+    <p class="lede note">她看不見，只靠聲音找人。走路、跑步、跳躍落地都會被她聽到；蹲著走沒有腳步聲。就算正面撞上她，只要站著或蹲著別動，她只會停下來遲疑一下。教室裡藏著剪刀、滅火器、粉筆、書包和橡皮擦，最多拿五樣。把東西丟出去，她會循著聲音過去。</p>
+    <div class="tt-wrap">
+      <table>
+        <caption>操作課表</caption>
+        <thead><tr><th>動作</th><th>鍵盤滑鼠</th><th>搖桿</th><th>觸控</th></tr></thead>
+        <tbody>
+          <tr><td>移動</td><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>左搖桿</td><td>左下虛擬搖桿</td></tr>
+          <tr><td>轉頭</td><td>滑鼠</td><td>右搖桿</td><td>空白處拖曳</td></tr>
+          <tr><td>走／蹲／跑</td><td><kbd>Shift</kbd> 按住蹲下</td><td>B 按住蹲下</td><td>右下三個人形</td></tr>
+          <tr><td>跳躍</td><td><kbd>Space</kbd></td><td>A</td><td>跳</td></tr>
+          <tr><td>手電筒</td><td><kbd>F</kbd></td><td>X</td><td>燈</td></tr>
+          <tr><td>撿起 / 翻找</td><td><kbd>E</kbd></td><td>Y</td><td>手</td></tr>
+          <tr><td>選道具</td><td><kbd>1</kbd>–<kbd>5</kbd> 或滾輪</td><td>LB / RB</td><td>點道具格</td></tr>
+          <tr><td>投擲</td><td>滑鼠左鍵 或 <kbd>Q</kbd></td><td>RT</td><td>手</td></tr>
+          <tr><td>看紙條（第 1 格）</td><td><kbd>R</kbd> 或左鍵</td><td>Back</td><td>手</td></tr>
+          <tr><td>設定／暫停</td><td><kbd>Esc</kbd></td><td>Start</td><td>右上「設定」</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modes" id="modeRow">
+      <button class="go" id="startBtn">進入校舍</button>
+      <button class="go quiet" id="loadBtn" hidden>繼續上次進度</button>
+    </div>
+    <p class="note" id="modeDesc">道具欄第 1 格是口袋裡寫著謎語的紙條（切到那格按 R 打開）。解開它，找出藏在教室裡的三張紙條，再從一樓某間教室的窗戶翻出去。十二分鐘後她會發狂：走得更快、耳朵更靈，很難甩掉。</p>
+    <p class="note" id="truthNote" hidden>已解鎖隱藏結局「真相」。謝謝你替她發聲。</p>
+    <span class="note" id="menuNote">建議戴耳機。遊戲中右上角「設定」可以暫停、存檔、調整靈敏度。</span>
+  </div>
+</section>
+
+<section class="screen" id="end" hidden>
+  <div class="card">
+    <div class="eyebrow" id="endEyebrow"></div>
+    <h1 id="endTitle"></h1>
+    <p class="lede" id="endText"></p>
+    <canvas id="dream" width="1120" height="720" hidden aria-label="夢裡，穿著淺藍色校服的女孩坐在陽光下的教室裡微笑"></canvas>
+    <p id="dreamLine" hidden>「謝謝你，終於有人，能替我發聲了。」<small>林語晴 · 二年三班</small></p>
+    <div class="row"><button class="go" id="againBtn">再玩一次</button><button class="go quiet" id="homeBtn">回到主選單</button></div>
+  </div>
+</section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
